@@ -21,12 +21,18 @@
 BASE-TYPE is the specification that SF-<NAME> will use. Documentation is
 optional, supply SF-DOCS and MF-DOCS."
   `(progn
+     (defun ,(intern (format nil "SF-~@:(~A~)-P" name)) (input)
+       (typep input ',base-type))
+     (defun ,(intern (format nil "MF-~@:(~A~)-P" name)) (input)
+       (when (typep input 'sequence)
+         (every #',(intern (format nil "SF-~@:(~A~)-P" name)) input)))
      (deftype ,(intern (format nil "SF-~@:(~A~)" name)) ()
        ,sf-docs
        ',base-type)
      (deftype ,(intern (format nil "MF-~@:(~A~)" name)) ()
        ,mf-docs
-       '(vector ,(intern (format nil "SF-~@:(~A~)" name)) ,size))))
+       '(and (vector ,base-type ,size)
+         (satisfies ,(intern (format nil "MF-~@:(~A~)-P" name)))))))
 
 (define-x3d-type bool (boolean)
   "Single boolean value.
