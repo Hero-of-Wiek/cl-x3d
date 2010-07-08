@@ -69,8 +69,13 @@ Uninitialized value is (0 0 0)."
 
 Uninitialized value is `empty'.")
 
-
-
+(macrolet ((defvec (base-type size-list suffix)
+               `(progn ,@(mapcar (lambda (size)
+                      `(define-x3d-type ,(format nil "VECTOR-~D-~A" size suffix)
+                    ((vector ,base-type ,size))))
+                                 (nutils:ensure-list size-list)))))
+  (defvec sf-double (2 3 4) double)
+  (double sf-float (2 3 4) float))
 
 (in-package :x3d.parse)
 
