@@ -44,6 +44,18 @@ Uninitialized value is 0.0"
 Uninitialized value is `empty'."
   '(vector 'sf-double))
 
+(deftype sf-float ()
+  "Single precision float.
+
+Uninitialized value is 0.0."
+  'single-float)
+
+(deftype mf-float ()
+  "Multiple single floats
+
+Uninitialized value is `empty'."
+  '(vector sf-float))
+
 ;;; TODO: may want to make this a struct instead of an array, but we can
 ;;; do this later when we have a better idea of requirements
 (deftype sf-color ()
