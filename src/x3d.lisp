@@ -1,10 +1,36 @@
 (in-package :x3d.types)
 
-(defun sf-bool-p (input)
+#+ () (defun sf-bool-p (input)
   "True if INPUT contains true or false as a string."
   (when (stringp input)
     (member input '("True" "False" "") :test #'equalp)))
 
+
+;;; field types
+(defstruct x3d-array-field
+  "Abstract field for all types with multiple values.")
+
+(defstruct x3d-field
+  "Abstract field for all types with single values.")
+
+(deftype sf-bool ()
+  "Single boolean value.
+
+Uninitialized value is FALSE."
+  'boolean)
+
+(deftype empty ()
+  "Empty list or vector based on the x3d specification.
+
+The spec only refers to a list, but we treat vectors as lists too. Our
+  empty vector has no elements in it, but may be of any type."
+  '(or null (vector * 0)))
+
+(deftype mf-bool ()
+  "Multiple boolean values.
+
+Uninitialized value is `empty'."
+  '(vector sf-bool))
 
 (in-package :x3d.parse)
 
