@@ -75,7 +75,7 @@ Uninitialized value is `empty'.")
                     ((vector ,base-type ,size))))
                                  (nutils:ensure-list size-list)))))
   (defvec sf-double (2 3 4) double)
-  (double sf-float (2 3 4) float))
+  (defvec sf-float (2 3 4) float))
 
 (in-package :x3d.parse)
 
