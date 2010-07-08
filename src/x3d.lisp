@@ -14,6 +14,20 @@
   "Abstract field for all types with single values.")
 
 (deftype sf-bool ()
+(defmacro define-x3d-type (name (base-type &optional (size '*))
+                           &optional sf-docs mf-docs)
+  "Create SF-<NAME> and MF-<NAME> types.
+
+BASE-TYPE is the specification that SF-<NAME> will use. Documentation is
+optional, supply SF-DOCS and MF-DOCS."
+  `(progn
+     (deftype ,(intern (format nil "SF-~@:(~A~)" name)) ()
+       ,sf-docs
+       ',base-type)
+     (deftype ,(intern (format nil "MF-~@:(~A~)" name)) ()
+       ,mf-docs
+       '(vector ,(intern (format nil "SF-~@:(~A~)" name)) ,size))))
+
   "Single boolean value.
 
 Uninitialized value is FALSE."
