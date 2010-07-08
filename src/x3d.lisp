@@ -32,6 +32,17 @@ The spec only refers to a list, but we treat vectors as lists too. Our
 Uninitialized value is `empty'."
   '(vector sf-bool))
 
+(deftype sf-double ()
+  "Double precision floating point number.
+
+Uninitialized value is 0.0"
+  'double-float)
+
+(deftype mf-double ()
+  "Multiple doubles.
+
+Uninitialized value is `empty'."
+  '(vector 'sf-double))
 
 ;;; TODO: may want to make this a struct instead of an array, but we can
 ;;; do this later when we have a better idea of requirements
