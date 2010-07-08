@@ -32,6 +32,21 @@ The spec only refers to a list, but we treat vectors as lists too. Our
 Uninitialized value is `empty'."
   '(vector sf-bool))
 
+
+;;; TODO: may want to make this a struct instead of an array, but we can
+;;; do this later when we have a better idea of requirements
+(deftype sf-color ()
+  "One RGB (read green blue) color triple.
+
+Uninitialized value is (0 0 0)."
+  '(vector (float 0.0 1.0) 3))
+
+(deftype mf-color ()
+  "Multiple colors.
+
+Uninitialized value is `empty'."
+  '(vector (vector sf-color)))
+
 (in-package :x3d.parse)
 
 (defun parse-sf-bool (string)
