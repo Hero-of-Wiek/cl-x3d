@@ -106,7 +106,8 @@ Uninitialized value is `empty'.")
 Our result is something like (list #(1 2 3) #(3.4 3.4 4.5))"
   (declare (string string))
   (mapcar (lambda (vect)
-            (mapcar #'read-from-string
+            (mapcar (lambda (string-number)
+                      (coerce (read-from-string string-number) 'single-float))
                     (split-sequence:split-sequence
                      #\Space vect :remove-empty-subseqs t)))
           (remove " "
@@ -129,5 +130,60 @@ Our result is something like (list #(1 2 3) #(3.4 3.4 4.5))"
 
 (defun get-dom (file)
   "Get a dom version of a .x3d FILE."
-  (cxml:parse-file (merge-pathnames file +root-directory+)
-                   (cxml-dom:make-dom-builder)))
+  (let ((uri "http://www.web3d.org/specifications/x3d-3.0.dtd")
+        (pathname (merge-pathnames "x3d-3.0.dtd" +root-directory+))
+        (uri2 "http://www.web3d.org/specifications/x3d-3.0-InputOutputFields.dtd")
+        (pathname2 (merge-pathnames "x3d-3.0-InputOutputFields.dtd" +root-directory+))
+        (uri3 "http://www.web3d.org/specifications/x3d-3.0-Web3dExtensionsPublic.dtd")
+        (pathname3 (merge-pathnames "x3d-3.0-Web3dExtensionsPublic.dtd" +root-directory+))
+        (uri4 "http://www.web3d.org/specifications/x3d-3.0-Web3dExtensionsPrivate.dtd")
+        (pathname4 (merge-pathnames "x3d-3.0-Web3dExtensionsPrivate.dtd" +root-directory+)))
+    (flet ((resolver (pubid sysid)
+             (declare (ignore pubid))
+             (cond
+               ((puri:uri= sysid (puri:parse-uri uri))
+                (open pathname :element-type '(unsigned-byte 8)))
+               ((puri:uri= sysid (puri:parse-uri uri2))
+                (open pathname2 :element-type '(unsigned-byte 8)))
+               ((puri:uri= sysid (puri:parse-uri uri3))
+                (open pathname3 :element-type '(unsigned-byte 8)))
+               ((puri:uri= sysid (puri:parse-uri uri4))
+                (open pathname4 :element-type '(unsigned-byte 8))))))
+      (cxml:parse-file (merge-pathnames file +root-directory+) (cxml-dom:make-dom-builder) :entity-resolver #'resolver))))
+
+
+
+(defun parse-coord-index (string)
+  (let ((faces (remove " " (split-sequence:split-sequence #\, string :remove-empty-subseqs t) :test #'string=)))
+    (mapcar (lambda (face)
+              (remove-if (lambda (number)
+                           (= -1 number)) face))
+            (mapcar #'parse-integers faces))))
+
+(defun parse-integers (string)
+  "Parse a series of integers from STRING."
+  (mapcar #'parse-integer (split-sequence:split-sequence #\Space string :remove-empty-subseqs t)))
+
+(defun parse-coordinate-point (string)
+  (mapcar (lambda (point)
+            (apply #'vector point))
+          (x3d.parse::parse-points string)))
+
+
+(defparameter *source* (get-dom "how-pretty-sword.x3d"))
+
+(gl::define-gl-array-format vertex
+  (gl:vertex :type :float :components (x y z)))
+
+(defun x3d-draw ()
+  (let ((indexed-face-set (elt (dom:get-elements-by-tag-name
+                                *source* "IndexedFaceSet") 0)))
+    (gl:with-gl-array-values (arr1 'vertex '(x y z))
+              (parse-coordinate-point (dom:get-attribute (elt (dom:child-nodes indexed-face-set) 1) "point"))
+            (gl:bind-gl-vertex-array arr1)
+            (gl:polygon-mode :front-and-back :line)
+            (gl:with-gl-array-values (arr2 :unsigned-int)
+                (nutils:flatten (parse-coord-index (dom:get-attribute indexed-face-set "coordIndex")))
+              (gl:draw-elements :polygon arr2)))))
+
+
