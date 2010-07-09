@@ -127,4 +127,7 @@ Our result is something like (list #(1 2 3) #(3.4 3.4 4.5))"
   ((point :initform #() :accessor point :type x3d.types::mf-vector-3-float
           :initarg :point)))
 
-
+(defun get-dom (file)
+  "Get a dom version of a .x3d FILE."
+  (cxml:parse-file (merge-pathnames file +root-directory+)
+                   (cxml-dom:make-dom-builder)))
