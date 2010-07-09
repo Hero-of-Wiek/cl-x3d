@@ -112,3 +112,19 @@ Our result is something like (list #(1 2 3) #(3.4 3.4 4.5))"
           (remove " "
                   (split-sequence:split-sequence #\, string :remove-empty-subseqs t)
                   :test #'string=)))
+
+
+(in-package :x3d)
+
+(defclass x3d-node ()
+  ((metadata :initform nil :accessor metadata)))
+
+(defclass x3d-geometric-property-node (x3d-node) ())
+
+(defclass x3d-coordinate-node (x3d-geometric-property-node) ())
+
+(defclass coordinate (x3d-coordinate-node)
+  ((point :initform #() :accessor point :type x3d.types::mf-vector-3-float
+          :initarg :point)))
+
+
